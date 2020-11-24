@@ -21,18 +21,29 @@ func NewCache() CacheMap {
         return cm
 }
 
+func CacheUpdateTime(name string, cdata CachingData) CachingData{ 
+        return CachingData{
+                        serviceName: cdata.serviceName,
+                        lastCalled: time.Now(),
+                        c_input: cdata.c_input,
+                        c_output: cdata.c_output,
+                }
+}
+
 
 func (cm CacheMap) CacheIn(name string, cdata CachingData) {
         cm.cmap[name] = cdata
 }
 
-func (cm CacheMap) CacheGet(name string) (CachingData, bool) {
+func (cm CacheMap) CacheGet(name string, input string) (CachingData, bool) {
         data, ok := cm.cmap[name]
-        if ok {
+        if ok && (data.c_input == input) {
+                fmt.Println("last called : ")
+                cm.cmap[name] = CacheUpdateTime(name, data)
+                fmt.Println(cm.cmap[name].lastCalled)
                 return data, ok
         } else {
-                fmt.Println("[RYAN] Cache MISS")
-                return CachingData{}, ok
+                return CachingData{}, false
         }
 }
 
@@ -52,10 +63,23 @@ func main(){
 
         fmt.Println()
         Cache.CacheIn("Service name", cdata)
-        Cache.CacheGet("Service name")
-        Cache.CacheGet("Wrong name")
 
+        fmt.Println("<HIT>\n")
+        data, ok := Cache.CacheGet("Service name", "Input data")
+        fmt.Println(data)
+        fmt.Println(ok)
         fmt.Println()
+
+        fmt.Println("<MISS - Wrong data>\n")
+        data, ok = Cache.CacheGet("Service name", "Wrong data")
+        fmt.Println(ok)
+        fmt.Println()
+
+        fmt.Println("<MISS - Wrong name>\n")
+        data, ok = Cache.CacheGet("Wrong name", "123")
+        fmt.Println(ok)
+        fmt.Println()
+
         fmt.Println("done")
 }
 */
